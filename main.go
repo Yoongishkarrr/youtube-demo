@@ -39,8 +39,8 @@ func main() {
 				Query: query,
 			})
 			data ,_ := json.MarshalIndent(msg, "", "    ")
-			fmt.Println(string(data))			
-			fmt.Println(msg)
+			rough := string(data[:])			
+			fmt.Println(rough)
             response.Reply("received")
         },
     })
