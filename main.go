@@ -5,9 +5,11 @@ import (
     "fmt"
     "log"
     "os"
+	"encoding/json"
 
     "github.com/joho/godotenv"
     "github.com/shomali11/slacker"
+	witai "github.com/wit-ai/wit-go/v2"
 )
 
 func printCommandEvents(analyticsChannel <-chan *slacker.CommandEvent) {
@@ -25,7 +27,7 @@ func main() {
     godotenv.Load(".env")
     
     bot := slacker.NewClient(os.Getenv("SLACK_TOKEN"), os.Getenv("SLACK_APP_TOKEN"))
-    
+    client := witai.NewClient(os.Getenv("WIT_AI_TOKEN"))
     go printCommandEvents(bot.CommandEvents())
     
     bot.Command("query for bot - <message>", &slacker.CommandDefinition{
@@ -33,7 +35,12 @@ func main() {
         Handler: func(botctx slacker.BotContext, request slacker.Request, response slacker.ResponseWriter) {
             query := request.Param("message")
             fmt.Println(query)
-            /*client.Parse*/
+			msg, _ := client.Parse(&witai.MessageRequest{
+				Query: query,
+			})
+			data ,_ := json.MarshalIndent(msg, "", "    ")
+			fmt.Println(string(data))			
+			fmt.Println(msg)
             response.Reply("received")
         },
     })
